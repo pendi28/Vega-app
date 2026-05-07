@@ -20,16 +20,16 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Configure git for GitHub npm dependencies
-        run: |
-          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
 
       - name: Install Dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build Providers
-        run: npm run providers:build
+        run: pnpm run providers:build
 
       - name: Generate modflix.json
         run: |
