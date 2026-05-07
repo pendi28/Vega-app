@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build APK
+    name: Build APK CineScope
     runs-on: ubuntu-latest
 
     steps:
@@ -31,9 +31,78 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      # ── 4. Install dependencies ─────────────────────────────────
+      # ── 4. Install dependencies (FIX ERROR EXIT CODE 1) ──────────
       - name: Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
+
+      # ── 5. Build providers ──────────────────────────────────────
+      - name: Build providers
+        run: npm run providers:build
+
+      # ── 6. Setup Android SDK ────────────────────────────────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # ── 7. Expo Prebuild ────────────────────────────────────────
+      - name: Expo Prebuild
+        run: npx expo prebuild -p android --clean
+        env:
+          EXPO_NO_TELEMETRY: "1"
+
+      # ── 8. Decode & simpan Keystore ─────────────────────────────
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
+      # ── 9. Build APK Release ────────────────────────────────────
+      - name: Build APK Release
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+        env:
+          MYAPP_UPLOAD_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      # ── 10. Rename APK dengan Nama CineScope ────────────────────
+      - name: Rename APK
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          APK_SRC=$(find android/app/build/outputs/apk/release -name "*.apk" -not -name "*unsigned*" | head -1)
+          APK_DST="CineScope-v${VERSION}-Pendi28.apk"
+          cp "$APK_SRC" "$APK_DST"
+          echo "APK_PATH=$APK_DST" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # ── 11. Upload APK sebagai artifact ─────────────────────────
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CineScope-APK-Release
+          path: ${{ env.APK_PATH }}
+          retention-days: 30
+
+      # ── 12. Buat GitHub Release (Hanya jika push tag v*) ─────────
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "CineScope v${{ env.VERSION }} - Pendi28"
+          body: |
+            ## CineScope v${{ env.VERSION }}
+            Build otomatis untuk **I Kadek Pendi Pradana**.
+
+            ### Cara Install
+            1. Download file APK di bawah.
+            2. Berikan izin instalasi dari sumber tidak dikenal.
+            3. Selamat menonton!
+
+            *Build Date: ${{ github.event.head_commit.timestamp }}*
+          files: ${{ env.APK_PATH }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # ── 5. Build providers ──────────────────────────────────────
       - name: Build providers
