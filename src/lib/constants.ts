@@ -14,7 +14,7 @@ export const OWNER = {
   github_username:     'Pendi28',
   repo_name:           'vega-app',
   providers_repo_name: 'vega-providers',
-  android_package:     'com.vega',
+  android_package:     'com.cinescope',
   download_folder:     'vega',
 };
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,6 +35,6 @@ export const themes: {name: string; color: string}[] = [
 
 export const socialLinks = {
   github:  `https://github.com/${OWNER.github_username}/${OWNER.repo_name}`,
-  discord: 'https://discord.gg/cr42m6maWy',
+  discord: 'undefined',
   sponsor: `https://github.com/sponsors/${OWNER.github_username}`,
 };

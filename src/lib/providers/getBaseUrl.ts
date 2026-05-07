@@ -3,7 +3,8 @@ import {cacheStorageService} from '../storage';
 // ─── OWNER CONFIG (di-generate oleh change-owner.js) ─────────────────────────
 const GITHUB_USERNAME = 'Pendi28';
 const GITHUB_REPO     = 'vega-app';
-const PROVIDERS_JSON_URL = `https://${GITHUB_USERNAME}.github.io/${GITHUB_REPO}/modflix.json`;
+const PROVIDERS_JSON_URL = "https://pendi28.github.io/Vega-app/modflix.json";
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Cache selama 1 jam

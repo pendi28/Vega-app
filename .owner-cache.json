@@ -1,13 +1,13 @@
 {
   "github_username": "Pendi28",
   "repo_name": "vega-app",
-  "app_name": "Vega",
-  "app_display_name": "Vega",
-  "app_slug": "vega",
-  "app_scheme": "com.vega",
-  "android_package": "com.vega",
+  "app_name": "cine scope",
+  "app_display_name": "cine scope",
+  "app_slug": "cine scope",
+  "app_scheme": "com.cinescope",
+  "android_package": "com.cinescope",
   "android_version_code": 164,
   "app_version": "3.3.5",
-  "discord_url": "https://discord.gg/cr42m6maWy",
+  "facebook_url": "https://www.facebook.com/share/18Kxx16CEs/",
   "download_folder_name": "vega"
 }
