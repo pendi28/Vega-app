@@ -22,7 +22,7 @@ module.exports = {
   app_version:          '3.3.5',            // Versi string (major.minor.patch)
 
   // ── Social Links ───────────────────────────────────────────
-  discord_url:          'https://discord.gg/cr42m6maWy',  // Discord server kamu
+  discord_url:          '',  // Discord server kamu
 
   // ── Download Folder ────────────────────────────────────────
   download_folder_name: 'vega',             // Folder download di storage Android
