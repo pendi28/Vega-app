@@ -3,10 +3,6 @@ name: Deploy Providers ke GitHub Pages
 on:
   push:
     branches: [main, master]
-    paths:
-      - "providers/**"
-      - "manifest.json"
-      - "build-bundled.js"
   workflow_dispatch:
 
 permissions:
@@ -14,50 +10,48 @@ permissions:
 
 jobs:
   deploy:
-    name: Build & Deploy Providers
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20" # Pakai versi 20 yang lebih stabil
 
-      - name: Install build dependencies
-        run: npm install --no-save esbuild terser axios cheerio zod
+      - name: Install Dependencies
+        run: |
+          npm install # Biarkan dia instal semua sesuai package.json
+          npm install esbuild terser # Pastikan esbuild benar-benar ada
 
-      - name: Build providers
-        run: node build-bundled.js
+      - name: Build Providers
+        run: npm run providers:build # Gunakan script resmi dari package.json
 
       - name: Generate modflix.json
         run: |
           node -e "
           const fs = require('fs');
+          if (!fs.existsSync('dist')) fs.mkdirSync('dist');
           const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-          const REPO = process.env.GITHUB_REPOSITORY;
+          const REPO = '${{ github.repository }}';
           const [owner, repo] = REPO.split('/');
           const BASE = 'https://' + owner.toLowerCase() + '.github.io/' + repo;
           const modflix = {};
           manifest.forEach(p => {
             modflix[p.value] = {
-              url: BASE + '/providers/' + p.value + '/',
+              url: BASE + '/' + p.value + '.js',
               version: p.version,
               display_name: p.display_name,
               type: p.type || 'global'
             };
           });
           fs.writeFileSync('dist/modflix.json', JSON.stringify(modflix, null, 2));
-          console.log('Generated modflix.json with', manifest.length, 'providers');
           "
 
-      - name: Deploy ke GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: gh-pages
-          keep_files: false
-          commit_message: "chore: update providers build [skip ci]"
